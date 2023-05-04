@@ -104,42 +104,46 @@ console.log("  🎭 Reading playwright script");
 const script = fs.readFileSync(out).toString("utf-8");
 fs.unlinkSync(out);
 
+const filter = `function($v) { $v.metadata.\`x-replay-qa\`.id = "${id}" }`;
 const replays = replay.listAllRecordings({
-  filter: `function($v) { $v.metadata.\`x-replay-qa\`.id = "${id}" }`,
+  filter,
 });
 
-if (replays.length !== 1) {
+if (replays.length === 0) {
   console.error("  ❌ Failed to find a recording with x-replay-qa id of " + id);
   console.error(JSON.stringify(replays, undefined, 2));
   return;
 }
 
-const recordingId = replays[0].id;
-console.log(
-  "  ✍️  Adding playwright script to metadata for replay",
-  recordingId
-);
-replay.addLocalRecordingMetadata(recordingId, {
-  "x-replay-qa": {
-    id,
-    script,
-  },
+replays.forEach((r) => {
+  const recordingId = r.id;
+  console.log(
+    "  ✍️  Adding playwright script to metadata for replay",
+    recordingId
+  );
+  replay.addLocalRecordingMetadata(recordingId, {
+    "x-replay-qa": {
+      id,
+      script,
+    },
+  });
 });
 
 if (apiKey) {
-  console.log("  ☁️  Uploading replay", recordingId);
+  console.log("  ☁️  Uploading replays");
   replay
-    .uploadRecording(recordingId, {
+    .uploadAllRecordings({
       apiKey,
+      filter,
     })
     .then((r) => {
       if (r) {
-        console.log(
-          "  ▶︎  Recording uploaded: https://app.replay.io/recording/" +
-            r.trim()
-        );
+        console.log("  ▶︎  Recordings uploaded");
+        replays.forEach((r) => {
+          console.log(`      https://app.replay.io/recording/${r.id}`);
+        });
       } else {
-        console.error("Failed to upload recording");
+        console.error("Failed to upload recordings");
       }
       console.log("");
     });
