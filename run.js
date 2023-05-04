@@ -57,6 +57,7 @@ if (!hasChromiumInstalled && !hasFirefoxInstalled) {
 const id = uuid.v4();
 
 program
+  .option("-v, --verbose", "Enable verbose logging", false)
   .option(
     "-b, --browser <browser>",
     "browser to use",
@@ -71,7 +72,7 @@ program
 
 program.parse();
 
-const { apiKey, out = tmp.fileSync().name, browser } = program.opts();
+const { verbose, apiKey, out = tmp.fileSync().name, browser } = program.opts();
 
 console.log("  🚀 Launching", browser, "with playwright inspector");
 spawnSync(
@@ -107,6 +108,7 @@ fs.unlinkSync(out);
 const filter = `function($v) { $v.metadata.\`x-replay-qa\`.id = "${id}" }`;
 const replays = replay.listAllRecordings({
   filter,
+  verbose,
 });
 
 if (replays.length === 0) {
@@ -135,6 +137,7 @@ if (apiKey) {
     .uploadAllRecordings({
       apiKey,
       filter,
+      verbose,
     })
     .then((r) => {
       if (r) {
