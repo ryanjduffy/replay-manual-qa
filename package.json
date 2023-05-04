@@ -1,0 +1,20 @@
+{
+  "name": "replay-manual-qa",
+  "version": "1.0.0",
+  "description": "",
+  "main": "run.js",
+  "scripts": {
+    "start": "node run.js"
+  },
+  "bin": "bin/replay-manual-qa",
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@replayio/playwright": "^0.3.28",
+    "@replayio/replay": "^0.12.8",
+    "commander": "^10.0.1",
+    "playwright": "1.19",
+    "tmp": "^0.2.1",
+    "uuid": "^7.0.3"
+  }
+}
